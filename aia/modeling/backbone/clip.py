@@ -45,7 +45,6 @@ from torch.distributions import Bernoulli
 import sys
 import math
 
-from .ScConv import SRU
 
 
 class FocusedDropoutAdapter(nn.Module):
@@ -55,10 +54,9 @@ class FocusedDropoutAdapter(nn.Module):
 
 
     def random_drop(self, mask, p):
-        drop_mask = torch.rand_like(mask.float())  # 将 mask 转换为 float 类型
-        drop_mask[drop_mask < p] = 0
+        drop_mask = torch.rand_like(mask.float())
         drop_mask[drop_mask >= p] = 1
-        return mask * drop_mask.byte()  # 将结果掩码转换回 bool 类型
+        return mask * drop_mask.byte()
 
     def forward(self, x):
 
@@ -302,7 +300,6 @@ class CLIP(Backbone):
         super().__init__()
         model_name = cfg.MODEL.FC_CLIP.CLIP_MODEL_NAME
         pretrained = cfg.MODEL.FC_CLIP.CLIP_PRETRAINED_WEIGHTS
-        pretrained = '/data2/wcw/.cache/huggingface/hub/models--laion--CLIP-convnext_large_d_320.laion2B-s29B-b131K-ft-soup/snapshots/4070cadc6220ffa4df32772e528ec11e7cb73780/open_clip_pytorch_model.bin'
 
 
         # download on local rank 0 first
@@ -354,25 +351,11 @@ class CLIP(Backbone):
             "clip_embedding": self.dim_latent
         }
 
-        # self.interaction = ContextInteraction(q_dim=768,
-        #                                                    k_dim=768,
-        #                                                    embed_dim=768,
-        #                                                    num_heads=8,
-        #                                                    hidden_dim=768,
-        #                                                    use_layer_scale=True)
 
-        # self.mona = Mona(in_dim=768, factor=4)
-        # self.mona = MonaOp_mask(in_features=768)
-        # self.mona = MonaOp_dc(in_features=768)
-        # self.gm = EfficientAtt(dim=768)
-        # self.scp = SelectiveChannelPruning(in_channels=192,channel_scorer_channels=192)
         self.mona_dd = MonaOp_dd(in_features=192)
 
         self.mona_dc = MonaOp_dc(in_features=768)
 
-        # self.a = nn.Parameter(torch.randn(1.))
-        #
-        # self.b = nn.Parameter(torch.randn(1.))
 
         # self.eval()
         self.freeze_everything()
@@ -429,20 +412,12 @@ class CLIP(Backbone):
         for i in range(4):
             # self.scp.requires_grad_(False)
             if i == 0:
-                # self.scp.requires_grad_(True)
-                # if True:
-                # with torch.enable_grad():
-                # mask_filters = self.scp(x)
-                # x = x * mask_filters + x
                 x = self.clip_model.visual.trunk.stages[i](x)
                 x = self.mona_dd(x, dd)
                 out[f'res{i + 2}'] = x.contiguous() # res 2 (os4), 3 (os8), 4 (os16), 5 (os32)
             elif i == 2:
                 x = self.clip_model.visual.trunk.stages[i](x)
                 x = self.mona_dc(x)
-                # torch.Size([4, 384, 100, 160])
-                # torch.Size([4, 768, 50, 80])
-                # print(s.shape, x.shape)
                 out[f'res{i + 2}'] = x.contiguous()   # res 2 (os4), 3 (os8), 4 (os16), 5 (os32)
 
             else:
