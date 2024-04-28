@@ -1,0 +1,4 @@
+# ninja log v5
+0	4034	1707403072569674547	/data/changwei/fc-clip/fcclip/modeling/pixel_decoder/ops/build/temp.linux-x86_64-cpython-38/data/changwei/fc-clip/fcclip/modeling/pixel_decoder/ops/src/cpu/ms_deform_attn_cpu.o	dcf789741e99c83a
+0	11968	1707403080493681667	/data/changwei/fc-clip/fcclip/modeling/pixel_decoder/ops/build/temp.linux-x86_64-cpython-38/data/changwei/fc-clip/fcclip/modeling/pixel_decoder/ops/src/cuda/ms_deform_attn_cuda.o	27c375aaea2f6620
+0	20727	1707403089249689442	/data/changwei/fc-clip/fcclip/modeling/pixel_decoder/ops/build/temp.linux-x86_64-cpython-38/data/changwei/fc-clip/fcclip/modeling/pixel_decoder/ops/src/vision.o	8b87b6da05dc3015
